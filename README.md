@@ -52,6 +52,6 @@ logger:
 <!-- Badge references -->
 [hacs-badge]: https://img.shields.io/badge/HACS-Custom-41BDF5.svg
 [hacs-url]: https://github.com/hacs/integration
-[release-badge]: https://img.shields.io/github/v/release/Triskae/ha_ocea_smart_building
-[release-url]: https://github.com/Triskae/ha_ocea_smart_building/releases
-[downloads-badge]: https://img.shields.io/github/downloads/Triskae/ha_ocea_smart_building/total
+[release-badge]: https://img.shields.io/github/v/release/cyberv92/ha_ocea_smart_building
+[release-url]: https://github.com/cyberv92/ha_ocea_smart_building/releases
+[downloads-badge]: https://img.shields.io/github/downloads/cyberv92/ha_ocea_smart_building/total

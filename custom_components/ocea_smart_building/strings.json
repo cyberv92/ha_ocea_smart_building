@@ -35,6 +35,9 @@
       },
       "eau_chaude": {
         "name": "Eau chaude"
+      },
+      "chauffage": {
+        "name": "Chauffage"
       }
     }
   }
