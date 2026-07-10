@@ -38,6 +38,12 @@
       },
       "chauffage": {
         "name": "Chauffage"
+      },
+      "fuite_eau_froide": {
+        "name": "Fuite estimée eau froide"
+      },
+      "fuite_eau_chaude": {
+        "name": "Fuite estimée eau chaude"
       }
     }
   }

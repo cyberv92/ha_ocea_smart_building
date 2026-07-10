@@ -281,28 +281,30 @@ class OceaApiClient:
 
     # ── API requests ──────────────────────────────────────────────────────
 
-    def _api_get(self, path: str, retry_auth: bool = True) -> any:
-        """Make an authenticated GET request to the Ocea API."""
+    def _api_request(
+        self, path: str, json_body: dict | None = None, retry_auth: bool = True
+    ) -> any:
+        """Make an authenticated request to the Ocea API (POST if json_body given)."""
         if not self._access_token:
             self.authenticate()
 
         url = f"{API_BASE}{path}"
-        resp = self._session.get(
-            url,
-            headers={
-                "Authorization": f"Bearer {self._access_token}",
-                "Accept": "application/json",
-                "Origin": B2C_REDIRECT_URI,
-                "Referer": f"{B2C_REDIRECT_URI}/",
-                "User-Agent": UA,
-            },
-            timeout=30,
-        )
+        headers = {
+            "Authorization": f"Bearer {self._access_token}",
+            "Accept": "application/json",
+            "Origin": B2C_REDIRECT_URI,
+            "Referer": f"{B2C_REDIRECT_URI}/",
+            "User-Agent": UA,
+        }
+        if json_body is None:
+            resp = self._session.get(url, headers=headers, timeout=30)
+        else:
+            resp = self._session.post(url, json=json_body, headers=headers, timeout=30)
 
         if resp.status_code == 401 and retry_auth:
             _LOGGER.debug("Token expired, refreshing")
             self.refresh_access_token()
-            return self._api_get(path, retry_auth=False)
+            return self._api_request(path, json_body, retry_auth=False)
 
         if resp.status_code != 200:
             raise OceaApiError(f"API error: HTTP {resp.status_code} — {resp.text[:200]}")
@@ -311,11 +313,21 @@ class OceaApiClient:
 
     def get_resident(self) -> dict:
         """Get resident info including occupations (logementId)."""
-        return self._api_get("/api/v1/resident")
+        return self._api_request("/api/v1/resident")
 
     def get_consumptions(self) -> list[dict[str, str]]:
         """Get water consumption data."""
-        return self._api_get(f"/api/v1/local/{self._local_id}/dashboard/consos")
+        return self._api_request(f"/api/v1/local/{self._local_id}/dashboard/consos")
+
+    def get_daily_consumptions(self, fluide: str, debut: str, fin: str) -> dict:
+        """Get daily consumption for a fluide between two ISO datetimes.
+
+        Returns {"consommations": [{"date", "valeur", "fuiteEstimee"?}, ...], "unite"}.
+        """
+        return self._api_request(
+            f"/api/v1/local/{self._local_id}/conso/{fluide}",
+            json_body={"debut": debut, "fin": fin, "granularity": "Day"},
+        )
 
     def validate_credentials(self) -> dict:
         """Test credentials and return resident data with logementId.

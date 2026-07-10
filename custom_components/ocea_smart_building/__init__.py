@@ -25,7 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         local_id=entry.data[CONF_LOCAL_ID],
     )
 
-    coordinator = OceaDataUpdateCoordinator(hass, client)
+    coordinator = OceaDataUpdateCoordinator(hass, client, entry.data[CONF_LOCAL_ID])
     await coordinator.async_config_entry_first_refresh()
 
     hass.data.setdefault(DOMAIN, {})

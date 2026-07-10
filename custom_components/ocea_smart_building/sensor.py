@@ -61,6 +61,26 @@ SENSOR_TYPES: tuple[OceaSensorEntityDescription, ...] = (
         icon="mdi:radiator",
         suggested_display_precision=2,
     ),
+    OceaSensorEntityDescription(
+        key="fuite_eau_froide",
+        data_key="fuite_eau_froide",
+        translation_key="fuite_eau_froide",
+        name="Fuite estimée eau froide",
+        native_unit_of_measurement=UnitOfVolume.CUBIC_METERS,
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:pipe-leak",
+        suggested_display_precision=3,
+    ),
+    OceaSensorEntityDescription(
+        key="fuite_eau_chaude",
+        data_key="fuite_eau_chaude",
+        translation_key="fuite_eau_chaude",
+        name="Fuite estimée eau chaude",
+        native_unit_of_measurement=UnitOfVolume.CUBIC_METERS,
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:pipe-leak",
+        suggested_display_precision=3,
+    ),
 )
 
 

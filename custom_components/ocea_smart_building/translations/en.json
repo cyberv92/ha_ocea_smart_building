@@ -38,6 +38,12 @@
       },
       "chauffage": {
         "name": "Heating"
+      },
+      "fuite_eau_froide": {
+        "name": "Estimated leak cold water"
+      },
+      "fuite_eau_chaude": {
+        "name": "Estimated leak hot water"
       }
     }
   }
