@@ -8,12 +8,18 @@ Home Assistant integration to monitor cold and hot water consumption from [Ocea 
 
 ## Features
 
-- **Cold water** consumption in m³
-- **Hot water** consumption in m³
-- Compatible with the **Energy dashboard** (water section)
+- **Cold water** and **hot water** consumption in m³
+- **Heating** energy (Cetc) in kWh
+- **Estimated leak** sensors (cold/hot water, from Ocea's `fuiteEstimee`)
+- **Daily long-term statistics** (`ocea_smart_building:*` series, 365-day backfill,
+  automatic catch-up after outages) — usable directly in the **Energy dashboard**
 - Automatic Azure AD B2C authentication (no headless browser needed)
 - Automatic token refresh
 - UI-based configuration
+
+> **Note on dates:** Ocea publishes each daily reading on day *J*, but the value is
+> the consumption of day *J−1*. The integration shifts statistics back one day so
+> consumption is credited to the day it actually happened.
 
 ## Installation
 
@@ -39,7 +45,9 @@ Your dwelling is automatically detected from your Ocea account.
 
 ## Energy dashboard
 
-The sensors can be added directly in Settings → Dashboards → Energy → Water consumption.
+In Settings → Dashboards → Energy → Water consumption, pick the **statistics series**
+(`Ocea Eau froide` / `Ocea Eau chaude`) rather than the live sensors: the daily series
+credit consumption to the right day, while the live sensors jump at poll time.
 
 ## Troubleshooting
 
