@@ -120,10 +120,14 @@ class OceaDataUpdateCoordinator(DataUpdateCoordinator[dict[str, float]]):
             stats: list[StatisticData] = []
             latest_leak: float | None = None
             for item in data.get("consommations") or []:
-                day = datetime.fromisoformat(item["date"]).replace(tzinfo=tz)
+                # Ocea dates each reading at publication day; the value is
+                # the consumption of the PREVIOUS day — shift back one day.
+                day = datetime.fromisoformat(item["date"]).replace(
+                    tzinfo=tz
+                ) - timedelta(days=1)
                 if has_leak and item.get("fuiteEstimee") is not None:
                     latest_leak = float(item["fuiteEstimee"])
-                # Skip already-recorded days and today's partial value
+                # Skip already-recorded days; shifted days are always complete
                 if day < stats_from or day >= today:
                     continue
                 valeur = float(item["valeur"])
