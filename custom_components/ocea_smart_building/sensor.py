@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import UnitOfEnergy, UnitOfVolume
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -93,18 +93,28 @@ async def async_setup_entry(
     coordinator: OceaDataUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id]
     local_id = config_entry.data[CONF_LOCAL_ID]
 
-    entities: list[OceaWaterSensor] = []
-    for description in SENSOR_TYPES:
-        if coordinator.data and description.data_key in coordinator.data:
-            entities.append(
-                OceaWaterSensor(
-                    coordinator=coordinator,
-                    description=description,
-                    local_id=local_id,
-                )
-            )
+    added: set[str] = set()
 
-    async_add_entities(entities, update_before_add=True)
+    @callback
+    def _async_add_new_sensors() -> None:
+        """Add the sensors whose data is available (runs on every update)."""
+        data = coordinator.data or {}
+        new = [
+            OceaWaterSensor(
+                coordinator=coordinator,
+                description=description,
+                local_id=local_id,
+            )
+            for description in SENSOR_TYPES
+            if description.key not in added and description.data_key in data
+        ]
+        added.update(sensor.entity_description.key for sensor in new)
+        async_add_entities(new)
+
+    _async_add_new_sensors()
+    config_entry.async_on_unload(
+        coordinator.async_add_listener(_async_add_new_sensors)
+    )
 
 
 class OceaWaterSensor(

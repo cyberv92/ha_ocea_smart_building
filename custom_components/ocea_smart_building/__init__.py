@@ -26,7 +26,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     coordinator = OceaDataUpdateCoordinator(hass, client, entry.data[CONF_LOCAL_ID])
-    await coordinator.async_config_entry_first_refresh()
+    # ponytail: not async_config_entry_first_refresh — HA would retry the setup
+    # every ~80 s (full Ocea login each time) while Ocea is down. The 5 h poll is
+    # the retry; raise UpdateFailed(retry_after=...) if that proves too slow.
+    await coordinator.async_refresh()
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator

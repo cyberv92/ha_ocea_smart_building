@@ -307,7 +307,7 @@ class OceaApiClient:
             return self._api_request(path, json_body, retry_auth=False)
 
         if resp.status_code != 200:
-            raise OceaApiError(f"API error: HTTP {resp.status_code} — {resp.text[:200]}")
+            raise OceaApiError(f"API error: HTTP {resp.status_code} — {resp.text[:1000]}")
 
         return resp.json()
 
