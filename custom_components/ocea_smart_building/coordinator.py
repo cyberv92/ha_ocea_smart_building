@@ -6,7 +6,11 @@ from datetime import datetime, timedelta
 import logging
 
 from homeassistant.components.recorder import get_instance
-from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
+from homeassistant.components.recorder.models import (
+    StatisticData,
+    StatisticMeanType,
+    StatisticMetaData,
+)
 from homeassistant.components.recorder.statistics import (
     async_add_external_statistics,
     get_last_statistics,
@@ -16,6 +20,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import dt as dt_util, slugify
+from homeassistant.util.unit_conversion import EnergyConverter, VolumeConverter
 
 from .api import OceaApiClient, OceaAuthError, OceaApiError
 from .const import DEFAULT_SCAN_INTERVAL, DOMAIN
@@ -27,6 +32,12 @@ STATS_FLUIDES = {
     "EauFroide": ("eau_froide", UnitOfVolume.CUBIC_METERS, "Eau froide", True),
     "EauChaude": ("eau_chaude", UnitOfVolume.CUBIC_METERS, "Eau chaude", True),
     "Cetc": ("cetc", UnitOfEnergy.KILO_WATT_HOUR, "Chauffage", False),
+}
+
+# HA requires a unit_class in statistics metadata from 2026.11
+UNIT_CLASSES = {
+    UnitOfVolume.CUBIC_METERS: VolumeConverter.UNIT_CLASS,
+    UnitOfEnergy.KILO_WATT_HOUR: EnergyConverter.UNIT_CLASS,
 }
 
 BACKFILL_DAYS = 365
@@ -140,11 +151,12 @@ class OceaDataUpdateCoordinator(DataUpdateCoordinator[dict[str, float]]):
                 async_add_external_statistics(
                     self.hass,
                     StatisticMetaData(
-                        has_mean=False,
+                        mean_type=StatisticMeanType.NONE,
                         has_sum=True,
                         name=f"Ocea {name}",
                         source=DOMAIN,
                         statistic_id=statistic_id,
+                        unit_class=UNIT_CLASSES[unit],
                         unit_of_measurement=unit,
                     ),
                     stats,
